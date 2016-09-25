@@ -1,0 +1,29 @@
+group 'org.oliver'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "io.vertx:vertx-core:3.3.3"
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile "io.vertx:vertx-unit:3.3.3"
+    testCompile 'org.mockito:mockito-core:2.1+'
+}
+
+tasks.withType(JavaCompile){
+    options.compilerArgs.addAll(['-Xlint:deprecation', '-Xlint:unchecked'])
+}
+
+test {
+    outputs.upToDateWhen { false }
+    testLogging.showStandardStreams = true
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
