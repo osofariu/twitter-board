@@ -1,5 +1,12 @@
+.idea/
 .gradle/
 build/
 gradle/
 gradlew
 gradlew.bat
+.vertx/
+*.log
+*.iws
+tasks.xml
+workspace.xml
+

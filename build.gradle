@@ -2,6 +2,7 @@ group 'org.oliver'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
@@ -9,8 +10,15 @@ repositories {
     mavenCentral()
 }
 
+mainClassName = "org.oliver.twb.TwitterVerticle"
+
 dependencies {
     compile "io.vertx:vertx-core:3.3.3"
+    compile 'com.twitter:hbc-core:2.2.0'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'org.slf4j:slf4j-log4j12:1.7.21'
+    compile 'com.google.code.gson:gson:2.7'
+
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile "io.vertx:vertx-unit:3.3.3"
     testCompile 'org.mockito:mockito-core:2.1+'
