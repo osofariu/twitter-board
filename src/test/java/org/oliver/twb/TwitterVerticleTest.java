@@ -1,21 +1,18 @@
 package org.oliver.twb;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.Properties;
-
-import static java.util.Arrays.asList;
-import static org.mockito.ArgumentCaptor.forClass;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 @RunWith(VertxUnitRunner.class)
 public class TwitterVerticleTest {
@@ -23,41 +20,50 @@ public class TwitterVerticleTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
 
-    private Properties testProperties = mock(Properties.class);
-    private TwitterClient twitterClient = mock(TwitterClient.class);
+    private TwitterClient mockTwitterClient;
     private TwitterVerticle subject;
+    Vertx vertx;
 
     @Before
-    public void setUp() {
-        subject = new TwitterVerticle(twitterClient);
+    public void setUp(TestContext testContext) {
+        mockTwitterClient = mock(TwitterClient.class);
+        subject = new TwitterVerticle(mockTwitterClient, rule.vertx());
+        vertx = rule.vertx();
+        MessageConsumer tweetConsumer = vertx.eventBus().consumer("tweet", msg -> {
+            testContext.assertEquals("tweet body", msg.body());
+            testContext.assertEquals("tweet", msg.body());
+        });
+        vertx.deployVerticle(subject);
+    }
+
+    @After
+    public void tearDown(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
     }
 
     @Test
-    public void stuff(TestContext context) throws Exception {
+    public void whenItGetMessageFromTwitterItPushesItOnBus(TestContext context) {
 
-        when(testProperties.getProperty("CONSUMER_KEY")).thenReturn("key123");
-        when(testProperties.getProperty("CONSUMER_SECRET")).thenReturn("prop123");
-        when(testProperties.getProperty("USER_TOKEN")).thenReturn("token123");
-        when(testProperties.getProperty("USER_SECRET")).thenReturn("secret123");
-
-
-        TwitterVerticle.main(new String[] {makeConfigFile()});
-        subject.start(); // TODO: using vertx unit runner, but it's not set-up correctly yet
-
-        verify(testProperties).getProperty("CONSUMER_KEY");
-        verify(testProperties).getProperty("CONSUMER_SECRET");
-        verify(testProperties).getProperty("USER_TOKEN");
-        verify(testProperties).getProperty("USER_SECRET");
+        Async async = context.async();
+        async.complete();
+//        vertx.eventBus().consumer("tweet", event -> {
+//                    context.assertEquals(event.body(), "body");
+//                    context.assertEquals(event.address(), "address");
+//                    async.complete();
+//                });
     }
 
-    private String makeConfigFile() throws IOException {
-        String configName = "/tmp/twitter.config";
-        FileWriter fileWriter = new FileWriter(configName);
-        fileWriter.write("CONSUMER_KEY=key123\n");
-        fileWriter.write("CONSUMER_SECRET=prop123\n");
-        fileWriter.write("USER_TOKEN=token123\n");
-        fileWriter.write("USER_SECRET=secret123\n");
-        fileWriter.close();
-        return configName;
-    }
 }
+/*
+@Before
+public void setUp(TestContext context) throws IOException {
+  vertx = Vertx.vertx();
+  ServerSocket socket = new ServerSocket(0);
+  port = socket.getLocalPort();
+  socket.close();
+  DeploymentOptions options = new DeploymentOptions()
+      .setConfig(new JsonObject().put("http.port", port)
+      );
+  vertx.deployVerticle(MyFirstVerticle.class.getName(), options, context.asyncAssertSuccess());
+}
+ */

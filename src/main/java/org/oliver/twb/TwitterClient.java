@@ -16,8 +16,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 
 public class TwitterClient {
-    private BlockingQueue<String> msgQueue;
-    private Hosts hosts;
+    BlockingQueue<String> msgQueue;
+    Hosts hosts;
     StatusesFilterEndpoint endpoint;
     Authentication auth;
     Client client;
@@ -26,6 +26,10 @@ public class TwitterClient {
     private String consumerSecret;
     private String userToken;
     private String userSecret;
+
+    public TwitterClient() {
+
+    }
 
     public TwitterClient(String consumerKey, String consumerSecret, String token, String secret) {
 
@@ -52,7 +56,6 @@ public class TwitterClient {
     }
 
     public void processMessages(Function<String,String> proc) throws InterruptedException {
-        System.out.println("Processing messages...");
         while (!client.isDone()) {
             String msg = msgQueue.take();
             proc.apply(msg);

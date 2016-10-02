@@ -4,6 +4,7 @@ build/
 gradle/
 gradlew
 gradlew.bat
+classes/
 .vertx/
 *.log
 *.iws
